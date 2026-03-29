@@ -1,0 +1,31 @@
+#!/bin/bash
+
+if [[ -z $1 ]]; then
+  echo "Usage: dgame filename.tar"
+  exit 0
+fi
+
+og_dir=$(pwd)
+filename=$1
+folder=${filename%.*}
+
+set -x 
+if ! tar -xf $filename; then
+  exit 1
+fi
+
+if ! cd $folder; then
+  exit 2
+fi
+
+if ! b2sum -c $filename.xz.b2; then
+  exit 3
+fi
+
+if ! tar -xf $filename.xz; then
+  exit 4
+fi
+
+cd $og_dir
+
+rm -rf $filename

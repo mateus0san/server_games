@@ -1,0 +1,41 @@
+#!/usr/bin/bash
+
+if [[ -z  $1 ]]; then
+  echo "Usage: cgame filename.iso"
+  exit 0
+fi
+
+og_dir=$(pwd)
+file_name=${1%.*}
+folder=$file_name
+comp_file="$file_name.tar.xz"
+
+set -x
+
+mkdir $folder
+
+if ! cd $folder; then
+  exit 1 
+fi
+
+if ! tar -cJf $comp_file ../$1 ; then
+  exit 2
+fi
+
+if ! b2sum $comp_file > $comp_file.b2; then
+  exit 3
+fi
+
+if ! b2sum -c $comp_file.b2; then
+  exit 4
+fi
+
+cd $og_dir
+
+if ! tar -cf $folder.tar $folder; then
+  exit 5
+fi
+
+rm -rf $folder
+
+mv $folder.tar $og_dir/../compressed
